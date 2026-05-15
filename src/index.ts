@@ -1,0 +1,1 @@
+console.log("RFD deal bot started");
