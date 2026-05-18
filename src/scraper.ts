@@ -6,6 +6,15 @@ const BASE_URL = "https://forums.redflagdeals.com";
 
 const SOURCES = ["/hot-deals-f9/", "/hot-deals-f9/trending/"];
 
+function isRecentDeal(postedAt: string, maxDays: number = 14): boolean {
+  const postedDate = new Date(postedAt);
+  const cutoff = new Date();
+
+  cutoff.setDate(cutoff.getDate() - maxDays);
+
+  return postedDate >= cutoff;
+}
+
 async function fetchDealsFromPage(path: string): Promise<Deal[]> {
   const response = await axios.get(`${BASE_URL}${path}`);
   const $ = cheerio.load(response.data);
@@ -39,7 +48,9 @@ async function fetchDealsFromPage(path: string): Promise<Deal[]> {
     })
     .get();
 
-  return deals.filter((deal) => deal.votes >= 20);
+  return deals.filter(
+    (deal) => deal.votes >= 20 && isRecentDeal(deal.postedAt),
+  );
 }
 
 export async function fetchDeals(): Promise<Deal[]> {

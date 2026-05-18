@@ -10,7 +10,8 @@ db.exec(`
         url TEXT NOT NULL,
         votes INTEGER NOT NULL,
         posted_at TEXT NOT NULL,
-        retailer TEXT
+        retailer TEXT,
+        notified_at TEXT NOT NULL
     )
 `);
 
@@ -30,9 +31,10 @@ export function saveDeal(deal: Deal): void {
             url,
             votes,
             posted_at,
-            retailer
+            retailer,
+            notified_at
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
   sql.run(
@@ -42,6 +44,7 @@ export function saveDeal(deal: Deal): void {
     deal.votes,
     deal.postedAt,
     deal.retailer,
+    new Date().toISOString(),
   );
 }
 
@@ -51,7 +54,7 @@ export function deleteOldDeals(days: number = 7): void {
 
   const stmt = db.prepare(`
         DELETE FROM deals
-        WHERE posted_at < ?
+        WHERE notified_at < ?
     `);
 
   stmt.run(cutoff.toISOString());
