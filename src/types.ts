@@ -4,5 +4,5 @@ export type Deal = {
     url: string;
     votes: number;
     postedAt: string;
-    retailer: string;
+    retailer: string,
 };

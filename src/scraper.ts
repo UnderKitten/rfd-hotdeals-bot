@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import type { Deal } from "./types.js";
+import type { Deal } from "./types.ts";
 
 const BASE_URL = "https://forums.redflagdeals.com";
 
