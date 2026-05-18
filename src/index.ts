@@ -1,7 +1,9 @@
 import { fetchDeals } from "./scraper.js";
-import { hasDeal, saveDeal } from "./data.js";
+import { hasDeal, saveDeal, deleteOldDeals } from "./data.js";
 
 async function main() {
+    deleteOldDeals();
+
     const deals = await fetchDeals();
 
     const newDeals = deals.filter(deal => !hasDeal(deal.id));

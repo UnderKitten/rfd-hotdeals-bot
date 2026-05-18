@@ -18,7 +18,7 @@ export async function fetchDeals(): Promise<Deal[]> {
 
       const votesText = $(el).find("span.votes.thread_stat").text().trim();
 
-      const votes = parseInt(votesText, 10) || 0;
+      const votes = parseInt(votesText, 15) || 0;
 
       const postedAt = $(el).find("time.topic_time").attr("datetime") ?? "";
 

@@ -15,17 +15,15 @@ db.exec(`
 `);
 
 export function hasDeal(id: string): boolean {
-    const stmt = db.prepare(
-        "SELECT id FROM deals WHERE id = ?"
-    );
+  const stmt = db.prepare("SELECT id FROM deals WHERE id = ?");
 
-    const result = stmt.get(id);
+  const result = stmt.get(id);
 
-    return !!result;
+  return !!result;
 }
 
 export function saveDeal(deal: Deal): void {
-    const sql = db.prepare(`
+  const sql = db.prepare(`
         INSERT INTO deals (
             id,
             title,
@@ -37,12 +35,24 @@ export function saveDeal(deal: Deal): void {
         VALUES (?, ?, ?, ?, ?, ?)
     `);
 
-    sql.run(
-        deal.id,
-        deal.title,
-        deal.url,
-        deal.votes,
-        deal.postedAt,
-        deal.retailer
-    );
+  sql.run(
+    deal.id,
+    deal.title,
+    deal.url,
+    deal.votes,
+    deal.postedAt,
+    deal.retailer,
+  );
+}
+
+export function deleteOldDeals(days: number = 7): void {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+
+  const stmt = db.prepare(`
+        DELETE FROM deals
+        WHERE posted_at < ?
+    `);
+
+  stmt.run(cutoff.toISOString());
 }
