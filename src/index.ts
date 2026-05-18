@@ -1,26 +1,33 @@
 import { fetchDeals } from "./scraper.js";
 import { hasDeal, saveDeal, deleteOldDeals } from "./data.js";
-import { notifyDeals } from "./discord.js";
+import { notifyDeals, notifyError } from "./discord.js";
 
 async function main() {
-    deleteOldDeals();
+  deleteOldDeals();
 
-    const deals = await fetchDeals();
+  const deals = await fetchDeals();
 
-    const newDeals = deals.filter(deal => !hasDeal(deal.id));
+  const newDeals = deals.filter((deal) => !hasDeal(deal.id));
 
-    if (newDeals.length === 0) {
-        console.log("No new deals.");
-        return;
-    }
+  if (newDeals.length === 0) {
+    console.log("No new deals.");
+    return;
+  }
 
-    await notifyDeals(newDeals);
+  for (const deal of newDeals) {
+    await notifyDeals([deal]);
+    saveDeal(deal);
+  }
 
-    for (const deal of newDeals) {
-        saveDeal(deal);
-    }
-
-    console.log(`Sent ${newDeals.length} deal notifications.`);
+  console.log(`Sent ${newDeals.length} deal notifications.`);
 }
 
-main();
+main().catch(async (error) => {
+  console.error("Bot failed:", error);
+
+  try {
+    await notifyError(error);
+  } catch (discordError) {
+    console.error("Failed to send Discord error:", discordError);
+  }
+});
