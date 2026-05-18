@@ -1,12 +1,13 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import type { Deal } from "./types.ts";
+import type { Deal } from "./types.js";
 
 const BASE_URL = "https://forums.redflagdeals.com";
 
-export async function fetchDeals(): Promise<Deal[]> {
-  const response = await axios.get(`${BASE_URL}/hot-deals-f9/`);
+const SOURCES = ["/hot-deals-f9/", "/hot-deals-f9/trending/"];
 
+async function fetchDealsFromPage(path: string): Promise<Deal[]> {
+  const response = await axios.get(`${BASE_URL}${path}`);
   const $ = cheerio.load(response.data);
 
   const deals: Deal[] = $("a.topic-card-info.thread_info")
@@ -18,7 +19,7 @@ export async function fetchDeals(): Promise<Deal[]> {
 
       const votesText = $(el).find("span.votes.thread_stat").text().trim();
 
-      const votes = parseInt(votesText, 15) || 0;
+      const votes = parseInt(votesText, 10) || 0;
 
       const postedAt = $(el).find("time.topic_time").attr("datetime") ?? "";
 
@@ -38,7 +39,19 @@ export async function fetchDeals(): Promise<Deal[]> {
     })
     .get();
 
-  console.log();
+  return deals.filter((deal) => deal.votes >= 20);
+}
 
-  return deals.filter(deal => deal.votes >= 15);
+export async function fetchDeals(): Promise<Deal[]> {
+  const results = await Promise.all(
+    SOURCES.map((source) => fetchDealsFromPage(source)),
+  );
+
+  const allDeals = results.flat();
+
+  const dedupedDeals = Array.from(
+    new Map(allDeals.map((deal) => [deal.id, deal])).values(),
+  );
+
+  return dedupedDeals;
 }
