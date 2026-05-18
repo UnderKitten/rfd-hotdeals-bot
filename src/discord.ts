@@ -18,10 +18,30 @@ export async function notifyDeals(deals: Deal[]): Promise<void> {
   const webhookUrl = getWebhookUrl();
 
   for (const deal of deals) {
+    const sentAt = new Date().toLocaleString("en-CA", {
+      hour: "2-digit",
+      minute: "2-digit",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+    const postedAt = new Date(deal.postedAt).toLocaleString("en-CA", {
+      hour: "2-digit",
+      minute: "2-digit",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
     const message =
-      `🔥 **${deal.title}**\n` +
-      `🏪 ${deal.retailer}\n` +
-      `👍 ${deal.votes} votes\n` +
+      `------------------------------------------------------------------` +
+      `\n\n🔥**New Hot Deal**` +
+      `**${deal.title}**\n\n` +
+      `🏪 Retailer: ${deal.retailer || "Unknown"}\n` +
+      `👍 Votes: ${deal.votes}\n` +
+      `🕒 Posted: ${postedAt}\n` +
+      `📬 Alert sent: ${sentAt}\n\n` +
       `${deal.url}`;
 
     await axios.post(webhookUrl, {
