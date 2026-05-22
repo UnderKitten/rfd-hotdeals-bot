@@ -16,7 +16,10 @@ function isRecentDeal(postedAt: string, maxDays: number = 14): boolean {
 }
 
 async function fetchDealsFromPage(path: string): Promise<Deal[]> {
-  const response = await axios.get(`${BASE_URL}${path}`);
+  const response = await axios.get(`${BASE_URL}${path}`, {
+    timeout: 15000,
+  });
+  
   const $ = cheerio.load(response.data);
 
   const deals: Deal[] = $("a.topic-card-info.thread_info")

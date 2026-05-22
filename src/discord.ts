@@ -50,6 +50,21 @@ export async function notifyDeals(deals: Deal[]): Promise<void> {
   }
 }
 
+export async function notifyHeartbeat(checkedDeals: number): Promise<void> {
+  const webhookUrl = getWebhookUrl();
+
+  const now = new Date().toLocaleString("en-CA");
+
+  const message =
+    `✅ **RFD Bot Heartbeat**\n\n` +
+    `Checked deals: ${checkedDeals}\n` +
+    `Time: ${now}`;
+
+  await axios.post(webhookUrl, {
+    content: message,
+  });
+}
+
 export async function notifyError(error: unknown): Promise<void> {
   const webhookUrl = getWebhookUrl();
 
